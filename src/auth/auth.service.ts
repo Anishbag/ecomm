@@ -10,6 +10,7 @@ import { UnauthorizedException } from '@nestjs/common';
 
 
 
+
 @Injectable()
 export class AuthService {
     constructor(
@@ -210,4 +211,27 @@ export class AuthService {
     );
   }
 }
+
+async logout(userId: number) {
+  const user = await this.userRepository.findOne({
+    where: {
+      id: userId,
+    },
+  });
+
+  if (!user) {
+    throw new UnauthorizedException(
+      'User not found',
+    );
+  }
+
+  user.refreshToken = null;
+
+  await this.userRepository.save(user);
+
+  return {
+    message: 'Logout successful',
+  };
+}
+
 }
