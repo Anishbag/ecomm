@@ -113,4 +113,101 @@ export class AuthService {
         };
         
     }
+
+    async refreshToken(refreshToken: string) {
+  try {
+    const payload = await this.jwtService.verifyAsync<{
+      sub: number;
+      email: string;
+      role: string;
+    }>(refreshToken, {
+      secret: process.env.JWT_REFRESH_SECRET,
+    });
+
+    const user = await this.userRepository.findOne({
+      where: {
+        id: payload.sub,
+      },
+    });
+
+    if (!user) {
+      throw new UnauthorizedException(
+        'Invalid refresh token',
+      );
+    }
+
+    if (!user.isActive) {
+      throw new UnauthorizedException(
+        'Your account has been deactivated',
+      );
+    }
+
+    if (!user.refreshToken) {
+      throw new UnauthorizedException(
+        'Refresh token not found',
+      );
+    }
+
+    const isRefreshTokenValid =
+      await bcrypt.compare(
+        refreshToken,
+        user.refreshToken,
+      );
+
+    if (!isRefreshTokenValid) {
+      throw new UnauthorizedException(
+        'Invalid refresh token',
+      );
+    }
+
+    const newPayload = {
+      sub: user.id,
+      email: user.email,
+      role: user.role,
+    };
+
+    const newAccessToken =
+      await this.jwtService.signAsync(
+        newPayload,
+      );
+
+    const newRefreshToken =
+      await this.jwtService.signAsync(
+        newPayload,
+        {
+          secret: process.env.JWT_REFRESH_SECRET,
+          expiresIn: '7d',
+        },
+      );
+
+    const hashedNewRefreshToken =
+      await bcrypt.hash(
+        newRefreshToken,
+        12,
+      );
+
+    user.refreshToken =
+      hashedNewRefreshToken;
+
+    await this.userRepository.save(user);
+
+    return {
+      message: 'Token refreshed successfully',
+
+      accessToken: newAccessToken,
+
+      refreshToken: newRefreshToken,
+    };
+  } catch (error) {
+    if (
+      error instanceof UnauthorizedException
+    ) {
+      throw error;
+    }
+
+    throw new UnauthorizedException(
+      'Invalid or expired refresh token',
+    );
+  }
+}
 }
