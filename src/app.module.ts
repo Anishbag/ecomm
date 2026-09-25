@@ -5,6 +5,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from './users/users.module.js';
 import { AuthModule } from './auth/auth.module.js';
+import { DatabaseModule } from './database/database.module.js';
 
 
 @Module({
@@ -37,6 +38,8 @@ import { AuthModule } from './auth/auth.module.js';
   UsersModule,
 
   AuthModule,
+
+  DatabaseModule,
 
 ],
   controllers: [AppController],
