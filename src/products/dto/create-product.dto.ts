@@ -1,0 +1,61 @@
+import {
+  IsArray,
+  IsEnum,
+  IsInt,
+  IsNumber,
+  IsOptional,
+  IsString,
+  IsUrl,
+  MaxLength,
+  Min,
+  MinLength,
+} from 'class-validator';
+
+import { ProductCategory } from '../entities/product.entity.js';
+
+export class CreateProductDto {
+  @IsString()
+  @MinLength(2)
+  @MaxLength(150)
+  name: string;
+
+  @IsString()
+  @MinLength(2)
+  @MaxLength(50)
+  sku: string;
+
+  @IsEnum(ProductCategory)
+  category: ProductCategory;
+
+  @IsString()
+  @MinLength(10)
+  description: string;
+
+  @IsNumber()
+  @Min(0)
+  price: number;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  discountPrice?: number;
+
+  @IsInt()
+  @Min(0)
+  stock: number;
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  images?: string[];
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  sizes?: string[];
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  colors?: string[];
+}
