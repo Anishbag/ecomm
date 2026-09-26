@@ -1,4 +1,4 @@
-import { Body, Controller, HttpCode, HttpStatus, Post, UploadedFiles, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Post, UploadedFiles, UseGuards, UseInterceptors } from '@nestjs/common';
 import { ProductsService } from './products.service.js';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard.js';
 import { RolesGuard } from '../auth/guards/roles.guard.js';
@@ -27,5 +27,12 @@ export class ProductsController {
         @UploadedFiles() files:Express.Multer.File[],
     ){
         return this.productsService.create(createProductDto,files,);
+    }
+
+
+    @Get()
+    @HttpCode(HttpStatus.OK)
+    async findAll(){
+        return this.productsService.findAll();
     }
 }

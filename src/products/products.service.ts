@@ -90,4 +90,15 @@ export class ProductsService {
 
         return this.productRepository.save(product);
     }
+
+    async findAll() {
+  return this.productRepository.find({
+    where: {
+      isActive: true,
+    },
+    order: {
+      createdAt: 'DESC',
+    },
+  });
+}
 }
