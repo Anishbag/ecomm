@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Post, UploadedFiles, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Post, UploadedFiles, UseGuards, UseInterceptors, Param } from '@nestjs/common';
 import { ProductsService } from './products.service.js';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard.js';
 import { RolesGuard } from '../auth/guards/roles.guard.js';
@@ -34,5 +34,12 @@ export class ProductsController {
     @HttpCode(HttpStatus.OK)
     async findAll(){
         return this.productsService.findAll();
+    }
+
+
+    @Get(':id')
+    @HttpCode(HttpStatus.OK)
+    async findOne(@Param('id') id: string) {
+        return this.productsService.findOne(Number(id));
     }
 }

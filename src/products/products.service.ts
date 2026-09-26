@@ -5,7 +5,7 @@ import { Repository } from 'typeorm';
 import { CreateProductDto } from './dto/create-product.dto.js';
 import { CloudinaryService } from '../config/cloudinary.service.js';
 import { Express } from 'express';
-
+import { NotFoundException } from '@nestjs/common';
 
 
 @Injectable()
@@ -92,13 +92,29 @@ export class ProductsService {
     }
 
     async findAll() {
-  return this.productRepository.find({
-    where: {
-      isActive: true,
-    },
-    order: {
-      createdAt: 'DESC',
-    },
-  });
-}
+        return this.productRepository.find({
+            where: {
+                isActive: true,
+            },
+            order: {
+                createdAt: 'DESC',
+            },
+        });
+    }
+
+
+    async findOne(id: number) {
+        const product = await this.productRepository.findOne({
+            where: {
+                id,
+                isActive: true,
+            },
+        });
+
+        if (!product) {
+            throw new NotFoundException('Product not found');
+        }
+
+        return product;
+    }
 }
