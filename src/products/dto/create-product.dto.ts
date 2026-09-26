@@ -12,6 +12,7 @@ import {
 } from 'class-validator';
 
 import { ProductCategory } from '../entities/product.entity.js';
+import { Transform } from 'class-transformer';
 
 export class CreateProductDto {
   @IsString()
@@ -31,29 +32,72 @@ export class CreateProductDto {
   @MinLength(10)
   description: string;
 
+  @Transform(({ value }) => Number(value))
   @IsNumber()
   @Min(0)
   price: number;
 
+  @Transform(({ value }) =>
+    value === undefined || value === ''
+      ? undefined
+      : Number(value),
+  )
   @IsOptional()
   @IsNumber()
   @Min(0)
   discountPrice?: number;
 
+  @Transform(({ value }) => Number(value))
   @IsInt()
   @Min(0)
   stock: number;
 
+  @Transform(({ value }) => {
+    if (!value) return undefined;
+
+    if (Array.isArray(value)) {
+      return value;
+    }
+
+    return value
+      .split(',')
+      .map((item: string) => item.trim())
+      .filter(Boolean);
+  })
   @IsOptional()
   @IsArray()
   @IsString({ each: true })
   images?: string[];
 
+  @Transform(({ value }) => {
+    if (!value) return undefined;
+
+    if (Array.isArray(value)) {
+      return value;
+    }
+
+    return value
+      .split(',')
+      .map((item: string) => item.trim())
+      .filter(Boolean);
+  })
   @IsOptional()
   @IsArray()
   @IsString({ each: true })
   sizes?: string[];
 
+  @Transform(({ value }) => {
+    if (!value) return undefined;
+
+    if (Array.isArray(value)) {
+      return value;
+    }
+
+    return value
+      .split(',')
+      .map((item: string) => item.trim())
+      .filter(Boolean);
+  })
   @IsOptional()
   @IsArray()
   @IsString({ each: true })

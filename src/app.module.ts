@@ -8,6 +8,7 @@ import { AuthModule } from './auth/auth.module.js';
 import { DatabaseModule } from './database/database.module.js';
 import { ProductsController } from './products/products.controller.js';
 import { ProductsModule } from './products/products.module.js';
+import { AppConfigModule } from './config/config.module.js';
 
 
 @Module({
@@ -44,6 +45,8 @@ import { ProductsModule } from './products/products.module.js';
   DatabaseModule,
 
   ProductsModule,
+
+  AppConfigModule,
 
  
 

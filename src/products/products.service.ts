@@ -3,17 +3,28 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Product } from './entities/product.entity.js';
 import { Repository } from 'typeorm';
 import { CreateProductDto } from './dto/create-product.dto.js';
+import { CloudinaryService } from '../config/cloudinary.service.js';
+import { Express } from 'express';
+
 
 
 @Injectable()
 export class ProductsService {
+
     constructor(
-        @InjectRepository(Product) private readonly productRepository: Repository<Product>,
+        @InjectRepository(Product)
+        private readonly productRepository:
+            Repository<Product>,
+
+        private readonly cloudinaryService:
+            CloudinaryService,
     ) { }
 
     async create(
         createProductDto: CreateProductDto,
+        files: Express.Multer.File[],
     ) {
+
         const {
             name,
             sku,
@@ -22,7 +33,6 @@ export class ProductsService {
             price,
             discountPrice,
             stock,
-            images,
             sizes,
             colors,
         } = createProductDto;
@@ -30,7 +40,7 @@ export class ProductsService {
         const existingProduct =
             await this.productRepository.findOne({
                 where: {
-                    sku,
+                    sku: sku.trim().toUpperCase(),
                 },
             });
 
@@ -48,6 +58,17 @@ export class ProductsService {
                 'Discount price must be less than regular price',
             );
         }
+
+        let imageUrls: string[] = [];
+
+        if (files && files.length > 0) {
+            imageUrls = await Promise.all(
+                files.map((file) =>
+                    this.cloudinaryService.uploadImage(file),
+                ),
+            );
+        }
+
         const product =
             this.productRepository.create({
                 name: name.trim(),
@@ -58,7 +79,10 @@ export class ProductsService {
                 discountPrice:
                     discountPrice ?? null,
                 stock,
-                images: images ?? null,
+                images:
+                    imageUrls.length > 0
+                        ? imageUrls
+                        : null,
                 sizes: sizes ?? null,
                 colors: colors ?? null,
                 isActive: true,

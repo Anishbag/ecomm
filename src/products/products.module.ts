@@ -4,9 +4,10 @@ import { ProductsService } from './products.service.js';
 import { Product } from './entities/product.entity.js';
 import { ProductsController } from './products.controller.js';
 import { AuthModule } from '../auth/auth.module.js';
+import { AppConfigModule } from '../config/config.module.js';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Product]), AuthModule],
+  imports: [TypeOrmModule.forFeature([Product]), AuthModule, AppConfigModule],
 
   controllers: [ProductsController],
 
