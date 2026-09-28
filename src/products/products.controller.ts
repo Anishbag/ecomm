@@ -58,9 +58,38 @@ export class ProductsController {
     }
 
 
+
+     // Admin All Products see Api ata
+
+    @Get('admin')
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles(UserRole.ADMIN)
+    @HttpCode(HttpStatus.OK)
+    async findAllForAdmin(
+        @Query('page') page?: string,
+        @Query('limit') limit?: string,
+    ) {
+        return this.productsService.findAllForAdmin(
+            Number(page) || 1,
+            Number(limit) || 10,
+        );
+  
+    }
+
+
+
+
     @Get(':id')
     @HttpCode(HttpStatus.OK)
     async findOne(@Param('id') id: string) {
         return this.productsService.findOne(Number(id));
     }
+
+
+   
+
+
+
+
+
 }

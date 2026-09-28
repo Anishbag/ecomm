@@ -181,4 +181,58 @@ export class ProductsService {
 
         return product;
     }
+
+
+    // Admin All Products see
+
+    async findAllForAdmin(
+        page: number = 1,
+        limit: number = 10,
+    ) {
+        const safePage = Math.max(1, page);
+        const safeLimit = Math.min(
+            Math.max(1, limit),
+            50,
+        );
+
+        const skip = (safePage - 1) * safeLimit;
+
+        const [products, total] =
+            await this.productRepository.findAndCount({
+                order: {
+                    createdAt: 'DESC',
+                },
+                skip,
+                take: safeLimit,
+            });
+
+        return {
+            products,
+            pagination: {
+                currentPage: safePage,
+                limit: safeLimit,
+                totalProducts: total,
+                totalPages: Math.ceil(total / safeLimit),
+                hasNextPage:
+                    safePage < Math.ceil(total / safeLimit),
+                hasPreviousPage: safePage > 1,
+            },
+        };
+    }
+
+
+
+
+
+
+
+
+
+
+
+
 }
+
+
+
+
