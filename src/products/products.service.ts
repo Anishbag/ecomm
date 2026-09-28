@@ -95,12 +95,19 @@ export class ProductsService {
     async findAll(
         search?: string,
         category?: ProductCategory,
+        page: number = 1,
+        limit: number = 10,
+        sort: string = 'latest',
     ) {
+        const safePage = Math.max(1, page);
+        const safeLimit = Math.min(Math.max(1, limit), 50);
+
         const query = this.productRepository
             .createQueryBuilder('product')
             .where('product.isActive = :isActive', {
                 isActive: true,
             });
+
 
         if (search) {
             query.andWhere(
@@ -111,6 +118,7 @@ export class ProductsService {
             );
         }
 
+
         if (category) {
             query.andWhere(
                 'product.category = :category',
@@ -120,12 +128,42 @@ export class ProductsService {
             );
         }
 
-        query.orderBy(
-            'product.createdAt',
-            'DESC',
-        );
 
-        return query.getMany();
+        switch (sort) {
+            case 'price_asc':
+                query.orderBy('product.price', 'ASC');
+                break;
+
+            case 'price_desc':
+                query.orderBy('product.price', 'DESC');
+                break;
+
+            case 'latest':
+            default:
+                query.orderBy('product.createdAt', 'DESC');
+                break;
+        }
+
+
+        const skip = (safePage - 1) * safeLimit;
+
+        query.skip(skip).take(safeLimit);
+
+        const [products, total] =
+            await query.getManyAndCount();
+
+        return {
+            products,
+            pagination: {
+                currentPage: safePage,
+                limit: safeLimit,
+                totalProducts: total,
+                totalPages: Math.ceil(total / safeLimit),
+                hasNextPage:
+                    safePage < Math.ceil(total / safeLimit),
+                hasPreviousPage: safePage > 1,
+            },
+        };
     }
 
 

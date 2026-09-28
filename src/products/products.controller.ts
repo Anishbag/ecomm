@@ -13,21 +13,21 @@ import { ProductCategory } from './entities/product.entity.js';
 export class ProductsController {
     constructor(
         private readonly productsService: ProductsService,
-    ){}
+    ) { }
 
-    @UseGuards(JwtAuthGuard,RolesGuard)
+    @UseGuards(JwtAuthGuard, RolesGuard)
     @Roles(UserRole.ADMIN)
     @Post()
     @HttpCode(HttpStatus.CREATED)
     @UseInterceptors(
-        FilesInterceptor('images',10)
+        FilesInterceptor('images', 10)
     )
     async create(
         @Body() createProductDto: CreateProductDto,
 
-        @UploadedFiles() files:Express.Multer.File[],
-    ){
-        return this.productsService.create(createProductDto,files,);
+        @UploadedFiles() files: Express.Multer.File[],
+    ) {
+        return this.productsService.create(createProductDto, files,);
     }
 
 
@@ -35,11 +35,25 @@ export class ProductsController {
     @HttpCode(HttpStatus.OK)
     async findAll(
         @Query('search') search?: string,
-        @Query('category') category?: ProductCategory,
+
+        @Query('category')
+        category?: ProductCategory,
+
+        @Query('page')
+        page?: string,
+
+        @Query('limit')
+        limit?: string,
+
+        @Query('sort')
+        sort?: string,
     ) {
         return this.productsService.findAll(
             search,
             category,
+            Number(page) || 1,
+            Number(limit) || 10,
+            sort || 'latest',
         );
     }
 
