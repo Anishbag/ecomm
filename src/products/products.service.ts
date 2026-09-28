@@ -6,6 +6,7 @@ import { CreateProductDto } from './dto/create-product.dto.js';
 import { CloudinaryService } from '../config/cloudinary.service.js';
 import { Express } from 'express';
 import { NotFoundException } from '@nestjs/common';
+import { ProductCategory } from './entities/product.entity.js';
 
 
 @Injectable()
@@ -91,15 +92,40 @@ export class ProductsService {
         return this.productRepository.save(product);
     }
 
-    async findAll() {
-        return this.productRepository.find({
-            where: {
+    async findAll(
+        search?: string,
+        category?: ProductCategory,
+    ) {
+        const query = this.productRepository
+            .createQueryBuilder('product')
+            .where('product.isActive = :isActive', {
                 isActive: true,
-            },
-            order: {
-                createdAt: 'DESC',
-            },
-        });
+            });
+
+        if (search) {
+            query.andWhere(
+                '(LOWER(product.name) LIKE LOWER(:search) OR LOWER(product.description) LIKE LOWER(:search))',
+                {
+                    search: `%${search.trim()}%`,
+                },
+            );
+        }
+
+        if (category) {
+            query.andWhere(
+                'product.category = :category',
+                {
+                    category,
+                },
+            );
+        }
+
+        query.orderBy(
+            'product.createdAt',
+            'DESC',
+        );
+
+        return query.getMany();
     }
 
 
