@@ -9,6 +9,7 @@ import { DatabaseModule } from './database/database.module.js';
 import { ProductsController } from './products/products.controller.js';
 import { ProductsModule } from './products/products.module.js';
 import { AppConfigModule } from './config/config.module.js';
+import { CartModule } from './cart/cart.module.js';
 
 
 @Module({
@@ -47,6 +48,8 @@ import { AppConfigModule } from './config/config.module.js';
   ProductsModule,
 
   AppConfigModule,
+
+  CartModule,
 
  
 
