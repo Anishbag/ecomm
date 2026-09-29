@@ -7,6 +7,7 @@ import { Product } from '../products/entities/product.entity.js';
 
 import { AddToCartDto } from './dto/add-to-cart.dto.js';
 import { NotFoundException } from '@nestjs/common';
+import { UpdateCartItemDto } from './dto/update-cart-item.dto.js';
 
 @Injectable()
 export class CartService {
@@ -111,35 +112,74 @@ export class CartService {
     }
 
     async getMyCart(userId: number) {
-  const cart = await this.cartRepository.findOne({
-    where: {
-      user: {
-        id: userId,
-      },
-    },
-    relations: {
-      user: true,
-      items: {
-        product: true,
-      },
-    },
-  });
+        const cart = await this.cartRepository.findOne({
+            where: {
+                user: {
+                    id: userId,
+                },
+            },
+            relations: {
+                user: true,
+                items: {
+                    product: true,
+                },
+            },
+        });
 
-  if (!cart) {
-    return {
-      message: 'Cart is empty',
-      items: [],
-    };
-  }
+        if (!cart) {
+            return {
+                message: 'Cart is empty',
+                items: [],
+            };
+        }
 
-  return {
-    id: cart.id,
-    items: cart.items.map((item) => ({
-      id: item.id,
-      quantity: item.quantity,
-      product: item.product,
-    })),
-  };
-}
+        return {
+            id: cart.id,
+            items: cart.items.map((item) => ({
+                id: item.id,
+                quantity: item.quantity,
+                product: item.product,
+            })),
+        };
+    }
+
+    async updateCartItem(
+        userId: number,
+        itemId: number,
+        updateCartItemDto: UpdateCartItemDto,
+    ) {
+        const { quantity } = updateCartItemDto;
+
+        const cartItem = await this.cartItemRepository.findOne({
+            where: {
+                id: itemId,
+                cart: {
+                    user: {
+                        id: userId,
+                    },
+                },
+            },
+            relations: {
+                cart: true,
+                product: true,
+            },
+        });
+
+        if (!cartItem) {
+            throw new NotFoundException(
+                'Cart item not found',
+            );
+        }
+
+        if (quantity > cartItem.product.stock) {
+            throw new NotFoundException(
+                'Insufficient product stock',
+            );
+        }
+
+        cartItem.quantity = quantity;
+
+        return this.cartItemRepository.save(cartItem);
+    }
 
 }
