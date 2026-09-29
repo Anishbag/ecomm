@@ -6,11 +6,13 @@ import {
     UseGuards,
     Req,
     HttpCode,
+    Get,
 } from '@nestjs/common';
 import { CartService } from './cart.service.js';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard.js';
 import { AuthUser } from '../auth/types/auth-user.type.js';
 import { AddToCartDto } from './dto/add-to-cart.dto.js';
+
 
 
 @Controller('cart')
@@ -31,6 +33,14 @@ export class CartController {
             req.user.userId,
             addToCartDto,
         );
+    }
+
+    @Get()
+    @UseGuards(JwtAuthGuard)
+    async getMyCart(
+        @Req() req: Request & { user: AuthUser },
+    ) {
+        return this.cartService.getMyCart(req.user.userId);
     }
 
 }

@@ -109,4 +109,37 @@ export class CartService {
 
         return this.cartItemRepository.save(cartItem);
     }
+
+    async getMyCart(userId: number) {
+  const cart = await this.cartRepository.findOne({
+    where: {
+      user: {
+        id: userId,
+      },
+    },
+    relations: {
+      user: true,
+      items: {
+        product: true,
+      },
+    },
+  });
+
+  if (!cart) {
+    return {
+      message: 'Cart is empty',
+      items: [],
+    };
+  }
+
+  return {
+    id: cart.id,
+    items: cart.items.map((item) => ({
+      id: item.id,
+      quantity: item.quantity,
+      product: item.product,
+    })),
+  };
+}
+
 }
