@@ -240,6 +240,22 @@ export class ProductsService {
     }
 
 
+    async updateStatus(
+        id: number,
+        isActive: boolean,
+    ) {
+        const product = await this.productRepository.findOne({
+            where: { id },
+        });
+
+        if (!product) {
+            throw new NotFoundException('Product not found');
+        }
+
+        product.isActive = isActive;
+
+        return this.productRepository.save(product);
+    }
 
 
 

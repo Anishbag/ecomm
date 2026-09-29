@@ -100,7 +100,7 @@ export class ProductsController {
     }
 
 
-    
+
 
     @Patch(':id')
     @UseGuards(JwtAuthGuard, RolesGuard)
@@ -116,6 +116,19 @@ export class ProductsController {
         );
     }
 
+    @Patch(':id/status')
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles(UserRole.ADMIN)
+    @HttpCode(HttpStatus.OK)
+    async updateStatus(
+        @Param('id') id: string,
+        @Body('isActive') isActive: boolean,
+    ) {
+        return this.productsService.updateStatus(
+            Number(id),
+            isActive,
+        );
+    }
 
 
 
