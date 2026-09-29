@@ -1,9 +1,23 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Post, UploadedFiles, UseGuards, UseInterceptors, Param, Query } from '@nestjs/common';
+import {
+    Body,
+    Controller,
+    Get,
+    HttpCode,
+    HttpStatus,
+    Post,
+    UploadedFiles,
+    UseGuards,
+    UseInterceptors,
+    Patch,
+    Param,
+    Query
+} from '@nestjs/common';
 import { ProductsService } from './products.service.js';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard.js';
 import { RolesGuard } from '../auth/guards/roles.guard.js';
 import { UserRole } from '../users/entities/user.entity.js';
 import { CreateProductDto } from './dto/create-product.dto.js';
+import { UpdateProductDto } from './dto/update-product.dto.js';
 import { Roles } from '../auth/decorators/roles.decorator.js';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { ProductCategory } from './entities/product.entity.js';
@@ -59,7 +73,7 @@ export class ProductsController {
 
 
 
-     // Admin All Products see Api ata
+    // Admin All Products see Api ata
 
     @Get('admin')
     @UseGuards(JwtAuthGuard, RolesGuard)
@@ -73,7 +87,7 @@ export class ProductsController {
             Number(page) || 1,
             Number(limit) || 10,
         );
-  
+
     }
 
 
@@ -86,7 +100,22 @@ export class ProductsController {
     }
 
 
-   
+    
+
+    @Patch(':id')
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles(UserRole.ADMIN)
+    @HttpCode(HttpStatus.OK)
+    async update(
+        @Param('id') id: string,
+        @Body() updateProductDto: UpdateProductDto,
+    ) {
+        return this.productsService.update(
+            Number(id),
+            updateProductDto,
+        );
+    }
+
 
 
 

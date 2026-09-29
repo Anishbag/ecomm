@@ -7,6 +7,7 @@ import { CloudinaryService } from '../config/cloudinary.service.js';
 import { Express } from 'express';
 import { NotFoundException } from '@nestjs/common';
 import { ProductCategory } from './entities/product.entity.js';
+import { UpdateProductDto } from './dto/update-product.dto.js';
 
 
 @Injectable()
@@ -221,7 +222,22 @@ export class ProductsService {
     }
 
 
+    async update(
+        id: number,
+        updateProductDto: UpdateProductDto,
+    ) {
+        const product = await this.productRepository.findOne({
+            where: { id },
+        });
 
+        if (!product) {
+            throw new NotFoundException('Product not found');
+        }
+
+        Object.assign(product, updateProductDto);
+
+        return this.productRepository.save(product);
+    }
 
 
 
