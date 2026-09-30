@@ -182,4 +182,37 @@ export class CartService {
         return this.cartItemRepository.save(cartItem);
     }
 
+    // cart items remove korar jonno
+
+    async removeCartItem(
+        userId: number,
+        itemId: number,
+    ) {
+        const cartItem = await this.cartItemRepository.findOne({
+            where: {
+                id: itemId,
+                cart: {
+                    user: {
+                        id: userId,
+                    },
+                },
+            },
+            relations: {
+                cart: true,
+            },
+        });
+
+        if (!cartItem) {
+            throw new NotFoundException(
+                'Cart item not found',
+            );
+        }
+
+        await this.cartItemRepository.remove(cartItem);
+
+        return {
+            message: 'Cart item removed successfully',
+        };
+    }
+
 }
