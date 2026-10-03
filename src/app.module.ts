@@ -10,6 +10,9 @@ import { ProductsController } from './products/products.controller.js';
 import { ProductsModule } from './products/products.module.js';
 import { AppConfigModule } from './config/config.module.js';
 import { CartModule } from './cart/cart.module.js';
+import { WishlistController } from './wishlist/wishlist.controller.js';
+import { WishlistModule } from './wishlist/wishlist.module.js';
+
 
 
 @Module({
@@ -51,10 +54,12 @@ import { CartModule } from './cart/cart.module.js';
 
   CartModule,
 
+  WishlistModule,
+
  
 
 ],
-  controllers: [AppController, ProductsController],
+  controllers: [AppController, ProductsController, WishlistController],
   providers: [AppService],
 })
 export class AppModule {}
