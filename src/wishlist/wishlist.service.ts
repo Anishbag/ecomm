@@ -1,4 +1,63 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable , NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Wishlist } from './entities/wishlist.entity.js';
+import { Repository } from 'typeorm';
+import { Product } from '../products/entities/product.entity.js';
+
 
 @Injectable()
-export class WishlistService {}
+export class WishlistService {
+    constructor(
+        @InjectRepository(Wishlist)
+        private readonly wishlistRepository: Repository<Wishlist>,
+
+        @InjectRepository(Product)
+        private readonly productRepository: Repository<Product>,
+    ){}
+
+    async addToWishlist(
+        userId: number,
+        productId: number,
+    ) {
+        const product = await this.productRepository.findOne({
+            where: {
+                id: productId,
+                isActive: true,
+            },
+        });
+
+        if (!product) {
+            throw new NotFoundException(
+                'Product not found or inactive',
+            );
+        }
+
+        const existingWishlist =
+            await this.wishlistRepository.findOne({
+                where: {
+                    user: {
+                        id: userId,
+                    },
+                    product: {
+                        id: productId,
+                    },
+                },
+            });
+
+        if (existingWishlist) {
+            throw new ConflictException(
+                'Product already exists in wishlist',
+            );
+        }
+
+        const wishlist =
+            this.wishlistRepository.create({
+                user: {
+                    id: userId,
+                },
+                product,
+            });
+
+        return this.wishlistRepository.save(wishlist);
+    }
+}

@@ -6,11 +6,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from './users/users.module.js';
 import { AuthModule } from './auth/auth.module.js';
 import { DatabaseModule } from './database/database.module.js';
-import { ProductsController } from './products/products.controller.js';
+
 import { ProductsModule } from './products/products.module.js';
 import { AppConfigModule } from './config/config.module.js';
 import { CartModule } from './cart/cart.module.js';
-import { WishlistController } from './wishlist/wishlist.controller.js';
+
 import { WishlistModule } from './wishlist/wishlist.module.js';
 
 
@@ -59,7 +59,7 @@ import { WishlistModule } from './wishlist/wishlist.module.js';
  
 
 ],
-  controllers: [AppController, ProductsController, WishlistController],
+  controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule {}
