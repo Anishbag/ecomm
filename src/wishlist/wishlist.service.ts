@@ -1,4 +1,4 @@
-import { ConflictException, Injectable , NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Wishlist } from './entities/wishlist.entity.js';
 import { Repository } from 'typeorm';
@@ -13,7 +13,7 @@ export class WishlistService {
 
         @InjectRepository(Product)
         private readonly productRepository: Repository<Product>,
-    ){}
+    ) { }
 
     async addToWishlist(
         userId: number,
@@ -62,25 +62,45 @@ export class WishlistService {
     }
 
 
-    async getMyWishlist(userId: number){
+    async getMyWishlist(userId: number) {
         const wishlist = await this.wishlistRepository.find({
-            where:{
-                user:{
-                    id:userId
+            where: {
+                user: {
+                    id: userId
                 },
             },
-            relations:{
+            relations: {
                 product: true,
             },
-            order:{
+            order: {
                 id: 'DESC'
             },
         });
-        return{
-            items: wishlist.map((item) =>({
-                id:item.id,
+        return {
+            items: wishlist.map((item) => ({
+                id: item.id,
                 product: item.product,
             })),
+        };
+    }
+
+
+    async removeFromWishlist(userId: number, productId: number) {
+        const wishlist = await this.wishlistRepository.findOne({
+            where: {
+                user: { id: userId },
+                product: { id: productId },
+            },
+        });
+
+        if (!wishlist) {
+            throw new NotFoundException('Product not found in wishlist');
+        }
+
+        await this.wishlistRepository.remove(wishlist);
+
+        return {
+            message: 'Product removed from wishlist successfully',
         };
     }
 }

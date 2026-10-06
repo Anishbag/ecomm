@@ -1,4 +1,4 @@
-import { Controller, Get, HttpCode, HttpStatus, Param, Post, Req, UseGuards } from '@nestjs/common';
+import { Controller, Delete, Get, HttpCode, HttpStatus, Param, Post, Req, UseGuards } from '@nestjs/common';
 import type { Request } from 'express';
 import { WishlistService } from './wishlist.service.js';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard.js';
@@ -33,6 +33,20 @@ export class WishlistController {
     ){
         return this.wishlistService.getMyWishlist(
             req.user.userId
+        );
+    }
+
+
+    @Delete(':productId')
+    @UseGuards(JwtAuthGuard)
+    @HttpCode(HttpStatus.OK)
+    async removeFromWishlist(
+        @Req() req: Request & { user: AuthUser },
+        @Param('productId') productId: string,
+    ) {
+        return this.wishlistService.removeFromWishlist(
+            req.user.userId,
+            Number(productId),
         );
     }
 }
