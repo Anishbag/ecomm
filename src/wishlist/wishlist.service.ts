@@ -60,4 +60,27 @@ export class WishlistService {
 
         return this.wishlistRepository.save(wishlist);
     }
+
+
+    async getMyWishlist(userId: number){
+        const wishlist = await this.wishlistRepository.find({
+            where:{
+                user:{
+                    id:userId
+                },
+            },
+            relations:{
+                product: true,
+            },
+            order:{
+                id: 'DESC'
+            },
+        });
+        return{
+            items: wishlist.map((item) =>({
+                id:item.id,
+                product: item.product,
+            })),
+        };
+    }
 }

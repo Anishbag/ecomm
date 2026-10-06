@@ -1,4 +1,4 @@
-import { Controller, HttpCode, HttpStatus, Param, Post, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, HttpCode, HttpStatus, Param, Post, Req, UseGuards } from '@nestjs/common';
 import type { Request } from 'express';
 import { WishlistService } from './wishlist.service.js';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard.js';
@@ -22,6 +22,17 @@ export class WishlistController {
         return this.wishlistService.addToWishlist(
             req.user.userId,
             Number(productId),
+        );
+    }
+
+    @Get()
+    @UseGuards(JwtAuthGuard)
+    @HttpCode(HttpStatus.OK)
+    async getMyWishlist(
+        @Req() req: Request & {user: AuthUser},
+    ){
+        return this.wishlistService.getMyWishlist(
+            req.user.userId
         );
     }
 }
