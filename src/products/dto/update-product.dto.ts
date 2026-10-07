@@ -52,7 +52,7 @@ export class UpdateProductDto {
   @IsOptional()
   @IsArray()
   @IsString({ each: true })
-  images?: string[];
+  removeImages?: string[];
 
   @IsOptional()
   @IsArray()

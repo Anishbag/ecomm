@@ -225,16 +225,91 @@ export class ProductsService {
     async update(
         id: number,
         updateProductDto: UpdateProductDto,
+        files: Express.Multer.File[],
     ) {
-        const product = await this.productRepository.findOne({
-            where: { id },
-        });
+        const product =
+            await this.productRepository.findOne({
+                where: { id },
+            });
 
         if (!product) {
-            throw new NotFoundException('Product not found');
+            throw new NotFoundException(
+                'Product not found',
+            );
         }
 
-        Object.assign(product, updateProductDto);
+        // validate price and disc
+
+        const newPrice =
+            updateProductDto.price ??
+            product.price;
+
+        const newDiscountPrice =
+            updateProductDto.discountPrice ??
+            product.discountPrice;
+
+        if (
+            newDiscountPrice !== null &&
+            newDiscountPrice !== undefined &&
+            newDiscountPrice >= newPrice
+        ) {
+            throw new ConflictException(
+                'Discount price must be less than regular price',
+            );
+        }
+
+        //    ata old image remove korbe
+
+        if (
+            updateProductDto.removeImages &&
+            updateProductDto.removeImages.length > 0
+        ) {
+            const removeImages =
+                updateProductDto.removeImages;
+
+            //ata cloud theke img delete krbe
+            await Promise.all(
+                removeImages.map((imageUrl) =>
+                    this.cloudinaryService.deleteImage(
+                        imageUrl,
+                    ),
+                ),
+            );
+
+            // Remove images krbe database 
+            product.images =
+                (product.images ?? []).filter(
+                    (imageUrl) =>
+                        !removeImages.includes(imageUrl),
+                );
+        }
+
+        //    new image upld krbe
+
+        if (files && files.length > 0) {
+            const newImageUrls =
+                await Promise.all(
+                    files.map((file) =>
+                        this.cloudinaryService.uploadImage(
+                            file,
+                        ),
+                    ),
+                );
+
+            product.images = [
+                ...(product.images ?? []),
+                ...newImageUrls,
+            ];
+        }
+
+
+
+        const {
+            removeImages,
+            ...productData
+        } = updateProductDto;
+
+        Object.assign(product, productData);
 
         return this.productRepository.save(product);
     }

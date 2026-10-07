@@ -60,4 +60,58 @@ export class CloudinaryService {
       );
     });
   }
+
+
+  async deleteImage(imageUrl: string): Promise<void> {
+    try {
+      const url = new URL(imageUrl);
+
+      const pathname = url.pathname;
+
+      const uploadIndex = pathname.indexOf('/upload/');
+
+      if (uploadIndex === -1) {
+        throw new Error('Invalid Cloudinary URL');
+      }
+
+      let publicIdWithExtension =
+        pathname.substring(uploadIndex + 8);
+
+
+      const transformationIndex =
+        publicIdWithExtension.indexOf('/');
+
+      if (transformationIndex !== -1) {
+        publicIdWithExtension =
+          publicIdWithExtension.substring(
+            transformationIndex + 1,
+          );
+      }
+
+
+      publicIdWithExtension =
+        publicIdWithExtension.replace(
+          /^v\d+\//,
+          '',
+        );
+
+
+      const publicId =
+        publicIdWithExtension.replace(
+          /\.[^/.]+$/,
+          '',
+        );
+
+      await cloudinary.uploader.destroy(
+        publicId,
+        {
+          resource_type: 'image',
+        },
+      );
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Image deletion failed',
+      );
+    }
+  }
 }
