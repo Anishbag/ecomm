@@ -1,4 +1,145 @@
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Order } from './entities/order.entity.js';
+import { Repository } from 'typeorm';
+import { OrderItem } from './entities/order-item.entity.js';
+import { Cart } from '../cart/entities/cart.entity.js';
+import { CartItem } from '../cart/entities/cart-item.entity.js';
+import { Product } from '../products/entities/product.entity.js';
+import { CreateOrderDto } from './dto/create-order.dto.js';
+import { PaymentStatus } from '../common/enums/order.enum.js';
+import { BadRequestException } from '@nestjs/common';
 
 @Injectable()
-export class OrderService {}
+export class OrderService {
+    constructor(
+        @InjectRepository(Order)
+        private readonly orderRepository: Repository<Order>,
+        @InjectRepository(OrderItem)
+        private readonly orderItemRepository: Repository<OrderItem>,
+        @InjectRepository(Cart)
+        private readonly cartRepository:Repository<Cart>,
+        @InjectRepository(CartItem)
+        private readonly cartItemRepository:Repository<CartItem>,
+        @InjectRepository(Product)
+        private readonly productRepository:Repository<Product>,
+    ){}
+     async createOrder(
+    userId: number,
+    createOrderDto: CreateOrderDto,
+  ) {
+    
+    const cart = await this.cartRepository.findOne({
+      where: {
+        user: {
+          id: userId,
+        },
+      },
+      relations: {
+        items: {
+          product: true,
+        },
+      },
+    });
+
+    if (!cart || !cart.items || cart.items.length === 0) {
+      throw new BadRequestException('Your cart is empty');
+    }
+
+    for (const item of cart.items) {
+      if (!item.product.isActive) {
+        throw new BadRequestException(
+          `${item.product.name} is currently unavailable`,
+        );
+      }
+
+      if (item.quantity > item.product.stock) {
+        throw new BadRequestException(
+          `Insufficient stock for ${item.product.name}`,
+        );
+      }
+    }
+
+//   ata product price total krbe
+    let subtotal = 0;
+
+    for (const item of cart.items) {
+      const price =
+        item.product.discountPrice ??
+        item.product.price;
+
+      subtotal += Number(price) * item.quantity;
+    }
+
+    const order = this.orderRepository.create({
+      user: {
+        id: userId,
+      },
+
+      firstName: createOrderDto.firstName,
+      lastName: createOrderDto.lastName,
+      companyName: createOrderDto.companyName,
+      country: createOrderDto.country,
+      streetAddress: createOrderDto.streetAddress,
+      city: createOrderDto.city,
+      state: createOrderDto.state,
+      pinCode: createOrderDto.pinCode,
+      phone: createOrderDto.phone,
+      email: createOrderDto.email,
+      additionalInformation: createOrderDto.additionalInformation,
+
+      subtotal,
+      total: subtotal,
+
+      paymentMethod: createOrderDto.paymentMethod,
+      paymentStatus: PaymentStatus.PENDING,
+    });
+
+    const savedOrder =
+      await this.orderRepository.save(order);
+
+    const orderItems = cart.items.map((item) => {
+      const price =
+        item.product.discountPrice ??
+        item.product.price;
+
+      return this.orderItemRepository.create({
+        order: savedOrder,
+        product: item.product,
+        productName: item.product.name,
+        price: Number(price),
+        quantity: item.quantity,
+        subtotal:
+          Number(price) * item.quantity,
+      });
+    });
+
+    await this.orderItemRepository.save(orderItems);
+
+
+    for (const item of cart.items) {
+      item.product.stock -= item.quantity;
+
+      await this.productRepository.save(
+        item.product,
+      );
+    }
+
+    await this.cartItemRepository.delete({
+      cart: {
+        id: cart.id,
+      },
+    });
+
+    return {
+      message: 'Order placed successfully',
+      orderId: savedOrder.id,
+      subtotal,
+      total: subtotal,
+      paymentMethod: savedOrder.paymentMethod,
+      paymentStatus: savedOrder.paymentStatus,
+    };
+  }
+
+    
+}
