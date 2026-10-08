@@ -9,6 +9,7 @@ import { Product } from '../products/entities/product.entity.js';
 import { CreateOrderDto } from './dto/create-order.dto.js';
 import { PaymentStatus } from '../common/enums/order.enum.js';
 import { BadRequestException } from '@nestjs/common';
+import { NotFoundException } from '@nestjs/common';
 
 @Injectable()
 export class OrderService {
@@ -193,6 +194,63 @@ export class OrderService {
       createdAt: order.createdAt,
       updatedAt: order.updatedAt,
     })),
+  };
+}
+
+async getMyOrderById(userId: number, orderId: number) {
+  const order = await this.orderRepository.findOne({
+    where: {
+      id: orderId,
+      user: {
+        id: userId,
+      },
+    },
+    relations: {
+      items: {
+        product: true,
+      },
+    },
+  });
+
+  if (!order) {
+    throw new NotFoundException('Order not found');
+  }
+
+  return {
+    id: order.id,
+    status: order.status,
+    paymentMethod: order.paymentMethod,
+    paymentStatus: order.paymentStatus,
+
+    subtotal: Number(order.subtotal),
+    total: Number(order.total),
+
+    shippingAddress: {
+      firstName: order.firstName,
+      lastName: order.lastName,
+      companyName: order.companyName,
+      country: order.country,
+      streetAddress: order.streetAddress,
+      city: order.city,
+      state: order.state,
+      pinCode: order.pinCode,
+      phone: order.phone,
+      email: order.email,
+      additionalInformation: order.additionalInformation,
+    },
+
+    items: order.items.map((item) => ({
+      id: item.id,
+      productId: item.product.id,
+      productName: item.productName,
+      price: Number(item.price),
+      quantity: item.quantity,
+      subtotal: Number(item.subtotal),
+      product: item.product,
+    })),
+
+    createdAt: order.createdAt,
+    updatedAt: order.updatedAt,
   };
 }
 
