@@ -1,15 +1,16 @@
 import {Column,CreateDateColumn,Entity,PrimaryGeneratedColumn,UpdateDateColumn,} from 'typeorm';
 
-export enum ProductCategory {
-  SOFAS = 'SOFAS',
-  CHAIRS = 'CHAIRS',
-  TABLES = 'TABLES',
-  BEDS = 'BEDS',
-  STORAGE = 'STORAGE',
-  LIGHTING = 'LIGHTING',
-  DECOR = 'DECOR',
-  OTHER = 'OTHER',
-}
+// export enum ProductCategory {
+//   SOFAS = 'SOFAS',
+//   CHAIRS = 'CHAIRS',
+//   TABLES = 'TABLES',
+//   BEDS = 'BEDS',
+//   STORAGE = 'STORAGE',
+//   LIGHTING = 'LIGHTING',
+//   DECOR = 'DECOR',
+//   OTHER = 'OTHER',
+// }
+import { ProductCategory } from '../../common/enums/product-category.enum.js';
 
 @Entity('products')
 export class Product {

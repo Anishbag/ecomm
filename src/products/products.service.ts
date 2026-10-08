@@ -6,7 +6,7 @@ import { CreateProductDto } from './dto/create-product.dto.js';
 import { CloudinaryService } from '../config/cloudinary.service.js';
 import { Express } from 'express';
 import { NotFoundException } from '@nestjs/common';
-import { ProductCategory } from './entities/product.entity.js';
+import { ProductCategory } from '../common/enums/product-category.enum.js';
 import { UpdateProductDto } from './dto/update-product.dto.js';
 
 

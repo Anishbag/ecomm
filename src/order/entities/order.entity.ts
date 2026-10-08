@@ -9,25 +9,9 @@ import {
 import type { Relation } from 'typeorm';
 import { User } from '../../users/entities/user.entity.js';
 import { OrderItem } from './order-item.entity.js';
+import { OrderStatus, PaymentMethod, PaymentStatus } from '../../common/enums/order.enum.js';
 
-export enum OrderStatus {
-    PENDING = 'PENDING',
-    CONFIRMED = 'CONFIRMED',
-    SHIPPED = 'SHIPPED',
-    DELIVERED = 'DELIVERED',
-    CANCELLED = 'CANCELLED',
-}
 
-export enum PaymentMethod {
-    ONLINE = 'ONLINE',
-    COD = 'COD',
-}
-
-export enum PaymentStatus {
-    PENDING = 'PENDING',
-    PAID = 'PAID',
-    FAILED = 'FAILED',
-}
 
 @Entity('orders')
 export class Order {

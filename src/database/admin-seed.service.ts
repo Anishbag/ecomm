@@ -2,7 +2,8 @@ import {Injectable,OnModuleInit} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import bcrypt from 'bcrypt';
-import { User,UserRole,} from '../users/entities/user.entity.js';
+import { User } from '../users/entities/user.entity.js';
+import { UserRole } from '../common/enums/role.enum.js';
 
 
 @Injectable()

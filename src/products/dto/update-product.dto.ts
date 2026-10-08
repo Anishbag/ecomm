@@ -83,7 +83,7 @@ import {
 
 import { Type, Transform } from 'class-transformer';
 
-import { ProductCategory } from '../entities/product.entity.js';
+import { ProductCategory } from '../../common/enums/product-category.enum.js';
 
 export class UpdateProductDto {
   @IsOptional()

@@ -15,12 +15,12 @@ import {
 import { ProductsService } from './products.service.js';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard.js';
 import { RolesGuard } from '../auth/guards/roles.guard.js';
-import { UserRole } from '../users/entities/user.entity.js';
+import { UserRole } from '../common/enums/role.enum.js';
 import { CreateProductDto } from './dto/create-product.dto.js';
 import { UpdateProductDto } from './dto/update-product.dto.js';
 import { Roles } from '../auth/decorators/roles.decorator.js';
 import { FilesInterceptor } from '@nestjs/platform-express';
-import { ProductCategory } from './entities/product.entity.js';
+import { ProductCategory } from '../common/enums/product-category.enum.js';
 
 
 

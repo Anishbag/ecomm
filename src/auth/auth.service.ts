@@ -1,6 +1,7 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User, UserRole } from '../users/entities/user.entity.js';
+import { User } from '../users/entities/user.entity.js';
+import { UserRole } from '../common/enums/role.enum.js';
 import { Repository } from 'typeorm';
 import { RegisterDto } from './dto/register.dto.js';
 import bcrypt from 'bcrypt';

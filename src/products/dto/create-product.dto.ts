@@ -11,7 +11,7 @@ import {
   MinLength,
 } from 'class-validator';
 
-import { ProductCategory } from '../entities/product.entity.js';
+import { ProductCategory } from '../../common/enums/product-category.enum.js';
 import { Transform } from 'class-transformer';
 
 export class CreateProductDto {
