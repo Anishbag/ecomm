@@ -13,6 +13,8 @@ import { CartModule } from './cart/cart.module.js';
 
 import { WishlistModule } from './wishlist/wishlist.module.js';
 
+import { OrderModule } from './order/order.module.js';
+
 
 
 @Module({
@@ -55,6 +57,8 @@ import { WishlistModule } from './wishlist/wishlist.module.js';
   CartModule,
 
   WishlistModule,
+
+  OrderModule,
 
  
 
