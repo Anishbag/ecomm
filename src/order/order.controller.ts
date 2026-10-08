@@ -1,4 +1,4 @@
-import { Body, Controller, HttpCode, HttpStatus, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, HttpCode, HttpStatus, Post, Req, UseGuards, Get } from '@nestjs/common';
 import { OrderService } from './order.service.js';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard.js';
 import { AuthUser } from '../auth/types/auth-user.type.js';
@@ -21,6 +21,17 @@ export class OrderController {
         return this.orderService.createOrder(
             req.user.userId,
             createOrderDto,
+        );
+    }
+
+    @Get()
+    @UseGuards(JwtAuthGuard)
+    @HttpCode(HttpStatus.OK)
+    async getMyOrders(
+        @Req() req: Request & {user: AuthUser},
+    ){
+        return this.orderService.getMyOrders(
+            req.user.userId,
         );
     }
         

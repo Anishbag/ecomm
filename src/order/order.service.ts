@@ -141,5 +141,60 @@ export class OrderService {
     };
   }
 
+  async getMyOrders(userId: number) {
+  const orders = await this.orderRepository.find({
+    where: {
+      user: {
+        id: userId,
+      },
+    },
+    relations: {
+      items: {
+        product: true,
+      },
+    },
+    order: {
+      id: 'DESC',
+    },
+  });
+
+  return {
+    orders: orders.map((order) => ({
+      id: order.id,
+      status: order.status,
+      paymentMethod: order.paymentMethod,
+      paymentStatus: order.paymentStatus,
+
+      subtotal: Number(order.subtotal),
+      total: Number(order.total),
+
+      shippingAddress: {
+        firstName: order.firstName,
+        lastName: order.lastName,
+        country: order.country,
+        streetAddress: order.streetAddress,
+        city: order.city,
+        state: order.state,
+        pinCode: order.pinCode,
+        phone: order.phone,
+        email: order.email,
+      },
+
+      items: order.items.map((item) => ({
+        id: item.id,
+        productId: item.product.id,
+        productName: item.productName,
+        price: Number(item.price),
+        quantity: item.quantity,
+        subtotal: Number(item.subtotal),
+        product: item.product,
+      })),
+
+      createdAt: order.createdAt,
+      updatedAt: order.updatedAt,
+    })),
+  };
+}
+
     
 }
