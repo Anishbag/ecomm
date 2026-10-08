@@ -1,4 +1,4 @@
-import { Body, Controller, HttpCode, HttpStatus, Post, Req, UseGuards, Get, Param } from '@nestjs/common';
+import { Body, Controller, HttpCode, HttpStatus, Post, Req, UseGuards, Get, Param,Patch } from '@nestjs/common';
 import { OrderService } from './order.service.js';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard.js';
 import { AuthUser } from '../auth/types/auth-user.type.js';
@@ -44,6 +44,19 @@ export class OrderController {
         @Param('id') id: string,
     ) {
         return this.orderService.getMyOrderById(
+            req.user.userId,
+            Number(id),
+        );
+    }
+
+    @Patch(':id/cancel')
+    @UseGuards(JwtAuthGuard)
+    @HttpCode(HttpStatus.OK)
+    async cancelMyOrder(
+        @Req() req: Request & { user: AuthUser },
+        @Param('id') id: string,
+    ) {
+        return this.orderService.cancelMyOrder(
             req.user.userId,
             Number(id),
         );

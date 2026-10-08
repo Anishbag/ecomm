@@ -7,7 +7,7 @@ import { Cart } from '../cart/entities/cart.entity.js';
 import { CartItem } from '../cart/entities/cart-item.entity.js';
 import { Product } from '../products/entities/product.entity.js';
 import { CreateOrderDto } from './dto/create-order.dto.js';
-import { PaymentStatus } from '../common/enums/order.enum.js';
+import { OrderStatus, PaymentStatus } from '../common/enums/order.enum.js';
 import { BadRequestException } from '@nestjs/common';
 import { NotFoundException } from '@nestjs/common';
 
@@ -251,6 +251,68 @@ async getMyOrderById(userId: number, orderId: number) {
 
     createdAt: order.createdAt,
     updatedAt: order.updatedAt,
+  };
+}
+
+async cancelMyOrder(userId: number, orderId: number) {
+  const order = await this.orderRepository.findOne({
+    where: {
+      id: orderId,
+      user: { id: userId },
+    },
+    relations: {
+      items: {
+        product: true,
+      },
+    },
+  });
+
+  if (!order) {
+    throw new NotFoundException('Order not found');
+  }
+
+  if (order.status === OrderStatus.CANCELLED) {
+    throw new BadRequestException('Order is already cancelled');
+  }
+
+// shipped order cancel hobe nah
+  if (order.status === OrderStatus.SHIPPED) {
+    throw new BadRequestException(
+      'Shipped order cannot be cancelled',
+    );
+  }
+
+  // Delivered order cancel hobe nah
+  if (order.status === OrderStatus.DELIVERED) {
+    throw new BadRequestException(
+      'Delivered order cannot be cancelled',
+    );
+  }
+
+  // sudhu pending r confirm order cancel hobe
+  if (
+    order.status !== OrderStatus.PENDING &&
+    order.status !== OrderStatus.CONFIRMED
+  ) {
+    throw new BadRequestException(
+      'This order cannot be cancelled',
+    );
+  }
+
+  for (const item of order.items) {
+    item.product.stock += item.quantity;
+
+    await this.productRepository.save(item.product);
+  }
+
+  order.status = OrderStatus.CANCELLED;
+
+  await this.orderRepository.save(order);
+
+  return {
+    message: 'Order cancelled successfully',
+    orderId: order.id,
+    status: order.status,
   };
 }
 
